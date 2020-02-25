@@ -3,7 +3,7 @@
 This is my work on doing a NosTale launcher, since Gameforge's one is really bad.
 Please, note that there is a really easier possibility than using my project : https://github.com/morsisko/NosTale-Gfless.
 
-I could not figured out why I was still getting "gf init fail" message, so here is my version.
+I could not figured out why I was still getting "gf init fail" message, when I was writing this project (I was just missing two environment variables), so here is my version.
 
 ## How it works
 
