@@ -28,33 +28,6 @@
        <string>Add account</string>
       </property>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="LE_USERNAME"/>
-       </item>
-       <item row="3" column="0" colspan="2">
-        <widget class="QPushButton" name="PB_ADD">
-         <property name="text">
-          <string>Add</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Gfuid</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="LE_GFUID"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Password</string>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="1">
         <widget class="QLineEdit" name="LE_PASSWORD"/>
        </item>
@@ -64,6 +37,33 @@
           <string>Username</string>
          </property>
         </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="LE_USERNAME"/>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Gfuid</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Password</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QPushButton" name="PB_ADD">
+         <property name="text">
+          <string>Add</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="LE_GFUID"/>
        </item>
        <item row="6" column="0" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout">
@@ -93,6 +93,62 @@
           </widget>
          </item>
         </layout>
+       </item>
+       <item row="7" column="1">
+        <widget class="QComboBox" name="CB_LANG">
+         <item>
+          <property name="text">
+           <string>EN</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>DE</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>FR</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>IT</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>PL</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ES</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>CZ</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>RU</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>TR</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Language</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

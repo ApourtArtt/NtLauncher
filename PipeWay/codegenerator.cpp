@@ -7,12 +7,12 @@ CodeGenerator::CodeGenerator(QObject *parent)
     code = nullptr;
 }
 
-QString CodeGenerator::connectToAccount(QString username, QString password, QString gfuid)
+QString CodeGenerator::connectToAccount(QString username, QString password, QString lang, QString gfuid)
 {
     currentUsername = username;
     currentPassword = password;
-    QString local = "fr_FR";
-    QString gfLang = "fr";
+    local = langToLocale.value(lang);
+    gflang = lang.toLower();
     currentGfuid = gfuid;
     if(!(isValidGfuid(currentGfuid)))
         currentGfuid = generateGfuid();
@@ -32,8 +32,8 @@ void CodeGenerator::retrieveEmailAddress()
     QByteArray json = "{"
                       "\"identity\":\"" + currentUsername.toUtf8() + "\","
                       "\"password\":\"" + currentPassword.toUtf8() + "\","
-                      "\"locale\":\"" + LOCALE.toUtf8() + "\","
-                      "\"gfLang\":\"" + GFLANG.toUtf8() + "\","
+                      "\"locale\":\"" + local.toUtf8() + "\","
+                      "\"gfLang\":\"" + gflang.toUtf8() + "\","
                       "\"platformGameId\":\"" + PLATFORMGAMEID.toUtf8() + "\""
                       "}";
     QNetworkRequest req(QUrl("https://spark.gameforge.com/api/v1/auth/thin/sessions"));
@@ -59,8 +59,8 @@ void CodeGenerator::connectWithEmail()
     QByteArray json = "{"
                       "\"identity\":\"" + email.toUtf8() + "\","
                       "\"password\":\"" + currentPassword.toUtf8() + "\","
-                      "\"locale\":\"" + LOCALE.toUtf8() + "\","
-                      "\"gfLang\":\"" + GFLANG.toUtf8() + "\","
+                      "\"locale\":\"" + local.toUtf8() + "\","
+                      "\"gfLang\":\"" + gflang.toUtf8() + "\","
                       "\"platformGameId\":\"" + PLATFORMGAMEID.toUtf8() + "\""
                       "}";
     QNetworkRequest req(QUrl("https://spark.gameforge.com/api/v1/auth/thin/sessions"));

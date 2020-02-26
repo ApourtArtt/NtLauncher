@@ -38,11 +38,11 @@ void MainWindow::on_PB_CONNECT_clicked()
     {
         QStringList accountInfo = getAccountInfos();
         QStringList info;
-        for(int i = 0 ; i < accountInfo.size() ; i = i + 3)
+        for(int i = 0 ; i < accountInfo.size() ; i = i + 4)
         {
             if(accountInfo[i] == ui->LW_ACCOUNTS->currentItem()->text())
             {
-                for(int j = 0 ; j < 3 ; j++)
+                for(int j = 0 ; j < 4 ; j++)
                     info.push_back(accountInfo[i + j]);
             }
         }
@@ -62,7 +62,7 @@ void MainWindow::on_PB_ADD_clicked()
         return;
     }
     QTextStream stream(&file);
-    stream << ui->LE_USERNAME->text() << "|" << ui->LE_PASSWORD->text() << "|" << ui->LE_GFUID->text() << endl;
+    stream << ui->LE_USERNAME->text() << "|" << ui->LE_PASSWORD->text() << "|" << ui->LE_GFUID->text() << "|" << ui->CB_LANG->currentText() << endl;
     file.close();
     ui->LW_ACCOUNTS->addItem(ui->LE_USERNAME->text());
 }
@@ -70,7 +70,7 @@ void MainWindow::on_PB_ADD_clicked()
 void MainWindow::connectToAccount(QStringList infos)
 {
     CodeGenerator cg;
-    code = cg.connectToAccount(infos[0], infos[1], infos[2]);
+    code = cg.connectToAccount(infos[0], infos[1], infos[3], infos[2]);
     gfuid = cg.getGfuid();
     username = infos[0];
 
@@ -111,7 +111,7 @@ QStringList MainWindow::getAccountInfos()
         {
             QString line = in.readLine();
             QStringList fields = line.split("|");
-            if(fields.size() == 3)
+            if(fields.size() == 4)
                 infos << fields;
             else
                 ui->statusbar->showMessage(tr("accounts.txt is invalid."));
@@ -127,7 +127,7 @@ void MainWindow::initialiseAccountList()
 {
     ui->LW_ACCOUNTS->clear();
     QStringList infos = getAccountInfos();
-    for (int i = 0 ; i < infos.size() ; i  = i + 3)
+    for (int i = 0 ; i < infos.size() ; i  = i + 4)
         ui->LW_ACCOUNTS->addItem(infos[i]);
 }
 
