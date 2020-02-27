@@ -21,6 +21,6 @@ __DO NOT FORGET TO SET YOUR LANGUAGE BEFORE SAVING YOUR ACCOUNT__
 
 Last step : click on browse and select NostaleClientX.exe in your Nostale repository.
 
-About GFUID : if you do not know what it is, keep it empty, this launcher will chose for you.
+About GFUID : if you do not know what it is, keep it empty, this launcher will choose for you.
 
 Note that launching this when gfclient.exe is started will cause some issues.
