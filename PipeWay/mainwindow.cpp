@@ -21,10 +21,17 @@ MainWindow::MainWindow(QWidget *parent)
             QString line = in.readLine();
             if(line.startsWith("NT_DIR="))
                 ui->LE_NTDIR->setText(line.remove("NT_DIR="));
+            else if(line.startsWith("KILL="))
+                ui->CB_KILLGFCLIENT->setChecked(line.remove("KILL=") == "TRUE" ? true : false);
+            else if(line.startsWith("TIME="))
+                ui->SB_TIME->setValue(line.remove("TIME=").toInt());
             else
                 ui->statusbar->showMessage(tr("config.txt is invalid."));
         }
     }
+    if(ui->CB_KILLGFCLIENT->isChecked())
+        killGfclient();
+    time = ui->SB_TIME->value();
 }
 
 MainWindow::~MainWindow()
@@ -34,22 +41,26 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_PB_CONNECT_clicked()
 {
-    if(ui->LW_ACCOUNTS->currentItem())
+    QList<QListWidgetItem*> items = ui->LW_ACCOUNTS->selectedItems();
+    for(int j = 0 ; j < items.size() ;j ++)
     {
-        QStringList accountInfo = getAccountInfos();
-        QStringList info;
-        for(int i = 0 ; i < accountInfo.size() ; i = i + 4)
+        QTimer::singleShot(time * 1000 * j, [=]
         {
-            if(accountInfo[i] == ui->LW_ACCOUNTS->currentItem()->text())
+            QStringList accountInfo = getAccountInfos();
+            QStringList info;
+            for(int i = 0 ; i < accountInfo.size() ; i = i + 4)
             {
-                for(int j = 0 ; j < 4 ; j++)
-                    info.push_back(accountInfo[i + j]);
+                if(accountInfo[i] == items[j]->text())
+                {
+                    for(int w = 0 ; w < 4 ; w++)
+                        info.push_back(accountInfo[i + w]);
+                }
             }
-        }
-        if(!info.isEmpty())
-        {
-            connectToAccount(info);
-        }
+            if(!info.isEmpty())
+            {
+                connectToAccount(info);
+            }
+        });
     }
 }
 
@@ -96,7 +107,7 @@ void MainWindow::connectToAccount(QStringList infos)
                 timer->stop();
             }
         });
-        timer->start(10);
+        timer->start(5);
     });
 }
 
@@ -131,24 +142,37 @@ void MainWindow::initialiseAccountList()
         ui->LW_ACCOUNTS->addItem(infos[i]);
 }
 
+void MainWindow::killGfclient()
+{
+    QProcess::execute("taskkill /im gfclient.exe /f");
+}
+
 void MainWindow::on_PB_BROWSE_clicked()
 {
     QString directory = QFileDialog::getOpenFileName(this, tr("Select NostaleClientX.exe"), QDir::currentPath(), "NostaleClientX.exe");
     if (!directory.isEmpty())
         ui->LE_NTDIR->setText(directory);
     QFile config(CONFIG_FILENAME);
-    if(!config.open(QIODevice::Append))
+    if(!config.open(QIODevice::ReadWrite))
     {
         ui->statusbar->showMessage(tr("Something went wrong in config.txt opening."));
         return;
     }
     QTextStream stream(&config);
+    QStringList line = QString(config.readAll()).split('\n');
+    for(int i = 0 ; i < line.size() ; i++)
+    {
+        if(line[i].startsWith("NT_DIR="))
+            line.erase(line.begin() + i);
+    }
+    config.resize(0);
+    line.removeAll("");
+    stream << line.join("\n") << endl;
     stream << "NT_DIR=" << directory << endl;
     config.close();
     ui->LE_NTDIR->setText(directory);
 }
 
-// TODO : Improve it by writing a nice json message.
 QByteArray MainWindow::generateResponse(QByteArray msg)
 {
     QJsonDocument jsonDoc = QJsonDocument::fromJson(msg);
@@ -207,4 +231,56 @@ void MainWindow::injectDll(QString processId, QString dllPath)
 {
     QProcess *proc = new QProcess(this);
     proc->startDetached("\"" + QDir::currentPath() + "/injector.exe\"", { dllPath, processId });
+}
+
+void MainWindow::on_CB_KILLGFCLIENT_stateChanged(int arg1)
+{
+    QFile config(CONFIG_FILENAME);
+    if(!config.open(QIODevice::ReadWrite))
+    {
+        ui->statusbar->showMessage(tr("Something went wrong in config.txt opening."));
+        return;
+    }
+    QTextStream stream(&config);
+    QStringList line = QString(config.readAll()).split('\n');
+    for(int i = 0 ; i < line.size() ; i++)
+    {
+        if(line[i].startsWith("KILL="))
+            line.erase(line.begin() + i);
+    }
+    qDebug() << arg1;
+    config.resize(0);
+    line.removeAll("");
+    stream << line.join("\n") << endl;
+    stream << "KILL=" << (arg1 ? "TRUE" : "FALSE") << endl;
+    config.close();
+}
+
+void MainWindow::on_SB_TIME_valueChanged(const QString &arg1)
+{
+    QFile config(CONFIG_FILENAME);
+    if(!config.open(QIODevice::ReadWrite))
+    {
+        ui->statusbar->showMessage(tr("Something went wrong in config.txt opening."));
+        return;
+    }
+    QTextStream stream(&config);
+    QStringList line = QString(config.readAll()).split('\n');
+    for(int i = 0 ; i < line.size() ; i++)
+    {
+        if(line[i].startsWith("TIME="))
+            line.erase(line.begin() + i);
+    }
+    qDebug() << arg1;
+    config.resize(0);
+    line.removeAll("");
+    stream << line.join("\n") << endl;
+    stream << "TIME=" << arg1 << endl;
+    config.close();
+    time = arg1.toInt();
+}
+
+void MainWindow::on_actionGithub_triggered()
+{
+    QDesktopServices::openUrl(QUrl(tr("https://github.com/ApourtArtt/NtLauncher")));
 }
