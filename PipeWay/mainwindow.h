@@ -14,6 +14,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -27,14 +28,17 @@ private slots:
     void on_PB_ADD_clicked();
     void on_PB_BROWSE_clicked();
     void on_PB_DELETE_clicked();
-
     void on_CB_KILLGFCLIENT_stateChanged(int arg1);
-
     void on_SB_TIME_valueChanged(const QString &arg1);
-
     void on_actionGithub_triggered();
+    void on_CB_LANG_currentIndexChanged(const QString &arg1);
+    void on_SB_TIME_valueChanged(double arg1);
+
+    void on_CB_ACCOUNTS_currentIndexChanged(const QString &arg1);
 
 private:
+    bool readConfigFile();
+    bool createConfigFile();
     void injectDll(QString processId, QString dllPath);
     QByteArray generateResponse(QByteArray msg);
     void connectToAccount(QStringList infos);
@@ -45,9 +49,13 @@ private:
     Ui::MainWindow *ui;
 
     QString code, username, gfuid;
-    double time;
 
-   const QString ACCOUNTS_FILENAME  = "accounts.txt";
-   const QString CONFIG_FILENAME    = "config.txt";
+    QString currentAccountFile;
+
+    double time;
+    bool kill;
+    QString ntdir;
+    QString lang;
 };
+
 #endif // MAINWINDOW_H

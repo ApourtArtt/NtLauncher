@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>582</width>
-    <height>318</height>
+    <height>323</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,20 +15,58 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_2">
-    <item row="1" column="0">
+    <item row="2" column="1">
+     <widget class="QPushButton" name="PB_DELETE">
+      <property name="text">
+       <string>Delete</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
      <widget class="QPushButton" name="PB_CONNECT">
       <property name="text">
        <string>Connect</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="2" rowspan="2">
+    <item row="1" column="0" colspan="2">
+     <widget class="QListWidget" name="LW_ACCOUNTS">
+      <property name="selectionMode">
+       <enum>QAbstractItemView::MultiSelection</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="2" rowspan="3">
      <widget class="QGroupBox" name="groupBox">
       <property name="title">
        <string>Add account</string>
       </property>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="6" column="0" colspan="2">
+       <item row="10" column="0" colspan="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Time between each connection (s)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="SB_TIME">
+           <property name="maximum">
+            <double>3600.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.500000000000000</double>
+           </property>
+           <property name="value">
+            <double>12.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="7" column="0" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <property name="spacing">
           <number>3</number>
@@ -57,21 +95,51 @@
          </item>
         </layout>
        </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="label_4">
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="LE_GFUID"/>
+       </item>
+       <item row="9" column="0" colspan="2">
+        <widget class="QCheckBox" name="CB_KILLGFCLIENT">
          <property name="text">
-          <string>Language</string>
+          <string>Kill gfclient.exe on startup</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Gfuid</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="LE_USERNAME"/>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="LE_PASSWORD"/>
+       </item>
+       <item row="4" column="0" colspan="2">
+        <widget class="QPushButton" name="PB_ADD">
+         <property name="text">
+          <string>Add</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
         <widget class="QLabel" name="label">
          <property name="text">
           <string>Username</string>
          </property>
         </widget>
        </item>
-       <item row="7" column="1">
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Password</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
         <widget class="QComboBox" name="CB_LANG">
          <item>
           <property name="text">
@@ -120,81 +188,23 @@
          </item>
         </widget>
        </item>
-       <item row="8" column="0" colspan="2">
-        <widget class="QCheckBox" name="CB_KILLGFCLIENT">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Kill gfclient.exe on startup</string>
+          <string>Language</string>
          </property>
         </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="LE_PASSWORD"/>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Gfuid</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="LE_USERNAME"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Password</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0" colspan="2">
-        <widget class="QPushButton" name="PB_ADD">
-         <property name="text">
-          <string>Add</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="LE_GFUID"/>
-       </item>
-       <item row="9" column="0" colspan="2">
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>Time between each connection (s)</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QDoubleSpinBox" name="SB_TIME">
-           <property name="maximum">
-            <double>3600.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.500000000000000</double>
-           </property>
-           <property name="value">
-            <double>12.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-        </layout>
        </item>
       </layout>
      </widget>
     </item>
-    <item row="1" column="1">
-     <widget class="QPushButton" name="PB_DELETE">
-      <property name="text">
-       <string>Delete</string>
-      </property>
-     </widget>
+    <item row="0" column="1">
+     <widget class="QComboBox" name="CB_ACCOUNTS"/>
     </item>
-    <item row="0" column="0" colspan="2">
-     <widget class="QListWidget" name="LW_ACCOUNTS">
-      <property name="selectionMode">
-       <enum>QAbstractItemView::MultiSelection</enum>
+    <item row="0" column="0">
+     <widget class="QLabel" name="label_6">
+      <property name="text">
+       <string>Account list :</string>
       </property>
      </widget>
     </item>
