@@ -16,6 +16,23 @@ MainWindow::MainWindow(QWidget *parent)
         accounts.append("accounts1.txt");
     }
     ui->setupUi(this);
+
+    NetworkRequester netReq;
+    QNetworkRequest req(QUrl("https://api.github.com/repos/ApourtArtt/NtLauncher/releases/latest"));
+    QByteArray response = netReq.get(req);
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
+    QJsonObject jsonObj = jsonDoc.object();
+    if(jsonObj.value(QString("tag_name")).toString() > VERSION)
+    {
+        QAction *update = new QAction("An update is available", this);
+        ui->menuBar->addAction(update);
+        connect(update, &QAction::triggered, [=]
+        {
+            UpdateWidget *upWidg = new UpdateWidget(jsonObj);
+            upWidg->show();
+        });
+    }
+
     for(int i = 0 ; i < accounts.size() ; i++)
         ui->CB_ACCOUNTS->insertItem(i, accounts[i]);
     time = 12000;
@@ -28,6 +45,7 @@ MainWindow::MainWindow(QWidget *parent)
     settings.setValue("_TNT_CLIENT_APPLICATION_ID", "d3b2a0c1-f0d0-4888-ae0b-1c5e1febdafb");
     settings.setValue("_TNT_SESSION_ID", "12345678-1234-1234-1234-123456789012");
     initialiseAccountList();
+    if(kill) killGfclient();
 }
 
 MainWindow::~MainWindow()
@@ -38,9 +56,9 @@ MainWindow::~MainWindow()
 void MainWindow::on_PB_CONNECT_clicked()
 {
     QList<QListWidgetItem*> items = ui->LW_ACCOUNTS->selectedItems();
-    for(int j = 0 ; j < items.size() ;j ++)
+    for(int j = 0 ; j < items.size() ; j++)
     {
-        QTimer::singleShot(time * 1000 * j, [=]
+        QTimer::singleShot(time * j, [=]
         {
             QStringList accountInfo = getAccountInfos();
             QStringList info;
@@ -85,7 +103,7 @@ void MainWindow::connectToAccount(QStringList infos)
     proc->startDetached(ntdir, {"gf", QString::number(langToId.value(langAccount))}, QDir::currentPath(), &pid);
     QTimer::singleShot(1000, [=]
     {
-        injectDll(QString::number(pid), "Ayugra.dll");
+        injectDll(QString::number(pid), "tmp/" + QString::number(pid) + ".dll");
     });
     QLocalServer *server = new QLocalServer(this);
     server->listen("GameforgeClientJSONRPC");
@@ -225,7 +243,6 @@ void MainWindow::on_CB_ACCOUNTS_currentIndexChanged(const QString &arg1)
     initialiseAccountList();
 }
 
-
 /* config.json
  * {
  *     "ntdir": "C:\\...",
@@ -302,12 +319,6 @@ void MainWindow::on_CB_LANG_currentIndexChanged(const QString &arg1)
 void MainWindow::on_SB_TIME_valueChanged(double arg1)
 {
     time = static_cast<int>(arg1 * 1000);
-    createConfigFile();
-}
-
-void MainWindow::on_SB_TIME_valueChanged(const QString &arg1)
-{
-    time = arg1.toInt();
     createConfigFile();
 }
 

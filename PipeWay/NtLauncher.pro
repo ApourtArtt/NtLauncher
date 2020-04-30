@@ -19,15 +19,18 @@ SOURCES += \
     codegenerator.cpp \
     main.cpp \
     mainwindow.cpp \
-    networkrequester.cpp
+    networkrequester.cpp \
+    updatewidget.cpp
 
 HEADERS += \
     codegenerator.h \
     mainwindow.h \
-    networkrequester.h
+    networkrequester.h \
+    updatewidget.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    updatewidget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

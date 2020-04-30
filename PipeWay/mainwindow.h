@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QMessageBox>
 #include <QMainWindow>
 #include <QLocalServer>
 #include <QLocalSocket>
@@ -9,6 +10,7 @@
 #include <QDesktopServices>
 #include "ui_mainwindow.h"
 #include "codegenerator.h"
+#include "updatewidget.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -29,11 +31,9 @@ private slots:
     void on_PB_BROWSE_clicked();
     void on_PB_DELETE_clicked();
     void on_CB_KILLGFCLIENT_stateChanged(int arg1);
-    void on_SB_TIME_valueChanged(const QString &arg1);
     void on_actionGithub_triggered();
     void on_CB_LANG_currentIndexChanged(const QString &arg1);
     void on_SB_TIME_valueChanged(double arg1);
-
     void on_CB_ACCOUNTS_currentIndexChanged(const QString &arg1);
 
 private:
@@ -56,6 +56,8 @@ private:
     bool kill;
     QString ntdir;
     QString lang;
+
+    const QString VERSION = "1.4";
 };
 
 #endif // MAINWINDOW_H
