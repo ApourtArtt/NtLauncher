@@ -6,245 +6,110 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>582</width>
-    <height>323</height>
+    <width>533</width>
+    <height>390</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Ayugra</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_2">
-    <item row="2" column="1">
-     <widget class="QPushButton" name="PB_DELETE">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QPushButton" name="PB_PARAM">
+      <property name="minimumSize">
+       <size>
+        <width>32</width>
+        <height>32</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>32</width>
+        <height>32</height>
+       </size>
+      </property>
       <property name="text">
-       <string>Delete</string>
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="res.qrc">
+        <normaloff>:/images/param.png</normaloff>:/images/param.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>28</width>
+        <height>28</height>
+       </size>
       </property>
      </widget>
     </item>
-    <item row="2" column="0">
-     <widget class="QPushButton" name="PB_CONNECT">
+    <item row="0" column="1">
+     <widget class="QPushButton" name="PB_ACCOUNTMANAGER">
+      <property name="minimumSize">
+       <size>
+        <width>32</width>
+        <height>32</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>32</width>
+        <height>32</height>
+       </size>
+      </property>
       <property name="text">
-       <string>Connect</string>
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="res.qrc">
+        <normaloff>:/images/account.png</normaloff>:/images/account.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>28</width>
+        <height>28</height>
+       </size>
       </property>
      </widget>
     </item>
-    <item row="1" column="0" colspan="2">
+    <item row="0" column="2">
+     <widget class="QComboBox" name="CB_ACCOUNTS"/>
+    </item>
+    <item row="2" column="0" colspan="3">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="PB_CONNECT">
+        <property name="text">
+         <string>Connect</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="PB_DELETE">
+        <property name="text">
+         <string>Delete</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="0" colspan="3">
      <widget class="QListWidget" name="LW_ACCOUNTS">
       <property name="selectionMode">
        <enum>QAbstractItemView::MultiSelection</enum>
       </property>
      </widget>
     </item>
-    <item row="0" column="2" rowspan="3">
-     <widget class="QGroupBox" name="groupBox">
-      <property name="title">
-       <string>Add account</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>Language</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="2" colspan="2">
-        <widget class="QLineEdit" name="LE_GFUID"/>
-       </item>
-       <item row="7" column="0" colspan="4">
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <property name="spacing">
-          <number>3</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="QLineEdit" name="LE_NTDIR"/>
-         </item>
-         <item>
-          <widget class="QPushButton" name="PB_BROWSE">
-           <property name="maximumSize">
-            <size>
-             <width>70</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Browse</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="1" column="2" colspan="2">
-        <widget class="QLineEdit" name="LE_USERNAME"/>
-       </item>
-       <item row="10" column="0" colspan="4">
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>Time between each connection (s)</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QDoubleSpinBox" name="SB_TIME">
-           <property name="maximum">
-            <double>3600.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.500000000000000</double>
-           </property>
-           <property name="value">
-            <double>12.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="2" column="2" colspan="2">
-        <widget class="QLineEdit" name="LE_PASSWORD"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Username</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Password</string>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="0" colspan="4">
-        <widget class="QCheckBox" name="CB_KILLGFCLIENT">
-         <property name="text">
-          <string>Kill gfclient.exe on startup</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Gfuid</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2" colspan="2">
-        <widget class="QComboBox" name="CB_LANG">
-         <item>
-          <property name="text">
-           <string>EN</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>DE</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>FR</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>IT</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>PL</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>ES</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>CZ</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>RU</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>TR</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="4" column="0" colspan="4">
-        <widget class="QPushButton" name="PB_ADD">
-         <property name="text">
-          <string>Add</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QComboBox" name="CB_ACCOUNTS"/>
-    </item>
-    <item row="0" column="0">
-     <widget class="QLabel" name="label_6">
-      <property name="text">
-       <string>Account list :</string>
-      </property>
-     </widget>
-    </item>
    </layout>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>582</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuAbout">
-    <property name="title">
-     <string>About</string>
-    </property>
-    <addaction name="actionGithub"/>
-   </widget>
-   <addaction name="menuAbout"/>
-  </widget>
-  <action name="actionGithub">
-   <property name="text">
-    <string>Github</string>
-   </property>
-  </action>
  </widget>
- <tabstops>
-  <tabstop>LE_USERNAME</tabstop>
-  <tabstop>LE_PASSWORD</tabstop>
-  <tabstop>LE_GFUID</tabstop>
-  <tabstop>PB_ADD</tabstop>
-  <tabstop>LE_NTDIR</tabstop>
-  <tabstop>PB_BROWSE</tabstop>
-  <tabstop>LW_ACCOUNTS</tabstop>
-  <tabstop>PB_CONNECT</tabstop>
-  <tabstop>PB_DELETE</tabstop>
- </tabstops>
- <resources/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections/>
 </ui>

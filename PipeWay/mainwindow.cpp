@@ -1,51 +1,32 @@
 #include "mainwindow.h"
+#include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-    if(!QDir("accounts").exists())
-        QDir().mkdir("accounts");
-    QDir dir = QDir::currentPath() + "/accounts";
-    QStringList accounts = dir.entryList({"*.txt"});
-    if(accounts.size() > 0)
-        currentAccountFile = accounts[0];
-    else
-    {
-        currentAccountFile = "accounts1.txt";
-        accounts.append("accounts1.txt");
-    }
+    accountReader = new AccountReader(this);
     ui->setupUi(this);
-
-    NetworkRequester netReq;
-    QNetworkRequest req(QUrl("https://api.github.com/repos/ApourtArtt/NtLauncher/releases/latest"));
-    QByteArray response = netReq.get(req);
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
-    QJsonObject jsonObj = jsonDoc.object();
-    if(jsonObj.value(QString("tag_name")).toString() > VERSION)
-    {
-        QAction *update = new QAction("An update is available", this);
-        ui->menuBar->addAction(update);
-        connect(update, &QAction::triggered, [=]
-        {
-            UpdateWidget *upWidg = new UpdateWidget(jsonObj);
-            upWidg->show();
-        });
-    }
-
-    for(int i = 0 ; i < accounts.size() ; i++)
-        ui->CB_ACCOUNTS->insertItem(i, accounts[i]);
-    time = 12000;
-    ntdir = "";
-    kill = false;
-    lang = "EN";
-    if(!readConfigFile())
-        ui->statusbar->showMessage("Config file is invalid. Options are automatically saved.");
+    setWindowIcon(QIcon(":/images/chaussons.png"));
+    config = new Configuration();
+    initialiseAyugraNamedPipe();
+    initialiseGameforgeNamedPipe();
+    initialiseTraySystem();
     QSettings settings("HKEY_CURRENT_USER\\Environment", QSettings::NativeFormat);
     settings.setValue("_TNT_CLIENT_APPLICATION_ID", "d3b2a0c1-f0d0-4888-ae0b-1c5e1febdafb");
     settings.setValue("_TNT_SESSION_ID", "12345678-1234-1234-1234-123456789012");
-    initialiseAccountList();
-    if(kill) killGfclient();
+    accAdd = new AccountAdder(accountReader->getAccountFileList(), config->getLang(), this);
+    connect(accAdd, &AccountAdder::createAccount, [this](QString displayedName, QString username, QString password, QString lang, QString gfuid, QString cache, QString filename)
+    {
+        accountReader->addAccount(displayedName, username, password, lang, gfuid, cache, -1, filename);
+        ui->CB_ACCOUNTS->clear();
+        ui->CB_ACCOUNTS->addItems(accountReader->getAccountFileList());
+        reloadAccounts();
+    });
+    connect(accAdd, &AccountAdder::changedLang, [this](QString Lang){config->setDefaultLang(Lang);});
+    reloadAccounts();
+    connect(ui->CB_ACCOUNTS, &QComboBox::currentTextChanged, [this](const QString& fn){reloadAccounts(fn);});
+    ui->CB_ACCOUNTS->addItems(accountReader->getAccountFileList());
 }
 
 MainWindow::~MainWindow()
@@ -53,128 +34,39 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_PB_CONNECT_clicked()
+void MainWindow::initialiseAyugraNamedPipe()
 {
-    QList<QListWidgetItem*> items = ui->LW_ACCOUNTS->selectedItems();
-    for(int j = 0 ; j < items.size() ; j++)
+    QLocalServer *server = new QLocalServer();
+    server->listen("AyugraLauncher");
+    connect(server, &QLocalServer::newConnection, [this]
     {
-        QTimer::singleShot(time * j, [=]
-        {
-            QStringList accountInfo = getAccountInfos();
-            QStringList info;
-            for(int i = 0 ; i < accountInfo.size() ; i = i + 4)
-            {
-                if(accountInfo[i] == items[j]->text())
-                {
-                    for(int w = 0 ; w < 4 ; w++)
-                        info.push_back(accountInfo[i + w]);
-                }
-            }
-            if(!info.isEmpty())
-                connectToAccount(info);
-        });
-    }
-}
-
-void MainWindow::on_PB_ADD_clicked()
-{
-    QFile file("accounts/" + currentAccountFile);
-    if (!file.open(QIODevice::Append))
-    {
-        ui->statusbar->showMessage(tr("Something went wrong in " + currentAccountFile.toUtf8() + " opening."));
-        return;
-    }
-    QTextStream stream(&file);
-    stream << ui->LE_USERNAME->text() << "|" << ui->LE_PASSWORD->text() << "|" << ui->LE_GFUID->text() << "|" << ui->CB_LANG->currentText() << endl;
-    file.close();
-    ui->LW_ACCOUNTS->addItem(ui->LE_USERNAME->text());
-}
-
-void MainWindow::connectToAccount(QStringList infos)
-{
-    CodeGenerator cg;
-    code = cg.connectToAccount(infos[0], infos[1], infos[3], infos[2]);
-    gfuid = cg.getGfuid();
-    username = infos[0];
-    QString langAccount = infos[3];
-
-    QProcess *proc = new QProcess(this);
-    qint64 pid;
-    proc->startDetached(ntdir, {"gf", QString::number(langToId.value(langAccount))}, QDir::currentPath(), &pid);
-    QTimer::singleShot(1000, [=]
-    {
-        injectDll(QString::number(pid), "tmp/" + QString::number(pid) + ".dll");
+        this->showNormal();
     });
-    QLocalServer *server = new QLocalServer(this);
-    server->listen("GameforgeClientJSONRPC");
-    connect(server, &QLocalServer::newConnection, this, [=]()
+}
+
+void MainWindow::initialiseGameforgeNamedPipe()
+{
+    QLocalServer *serverGf = new QLocalServer(this);
+    serverGf->listen("GameforgeClientJSONRPC");
+    connect(serverGf, &QLocalServer::newConnection, this, [=]()
     {
-        QLocalSocket *socket = server->nextPendingConnection();
-        QTimer *timer = new QTimer(this);
-        connect(timer, &QTimer::timeout, this, [=]()
+        QLocalSocket *socketGf = serverGf->nextPendingConnection();
+
+        connect(socketGf, &QLocalSocket::readyRead, [=]
         {
-            QByteArray msg = socket->readAll();
+            QByteArray msg = socketGf->readAll();
             if(msg.size() > 0)
             {
-                socket->write(generateResponse(msg));
-                timer->stop();
+                socketGf->write(generateResponse(msg));
             }
         });
-        timer->start(5);
     });
-}
-
-QStringList MainWindow::getAccountInfos()
-{
-    QStringList infos;
-    QFile file("accounts/" + currentAccountFile);
-    if(file.open(QIODevice::ReadOnly))
-    {
-        QTextStream in(&file);
-        while(!in.atEnd())
-        {
-            QString line = in.readLine();
-            QStringList fields = line.split("|");
-            if(fields.size() == 4)
-                infos << fields;
-            else
-                ui->statusbar->showMessage(tr(currentAccountFile.toUtf8() + " is invalid."));
-        }
-    }
-    else
-        ui->statusbar->showMessage(tr("No account loaded"), 5000);
-    file.close();
-    return infos;
-}
-
-void MainWindow::initialiseAccountList()
-{
-    ui->LW_ACCOUNTS->clear();
-    QStringList infos = getAccountInfos();
-    for (int i = 0 ; i < infos.size() ; i  = i + 4)
-        ui->LW_ACCOUNTS->addItem(infos[i]);
-}
-
-void MainWindow::killGfclient()
-{
-    QProcess::execute("taskkill /im gfclient.exe /f");
-}
-
-void MainWindow::on_PB_BROWSE_clicked()
-{
-    QString directory = QFileDialog::getOpenFileName(this, tr("Select NostaleClientX.exe"), QDir::currentPath(), "NostaleClientX.exe");
-    if (!directory.isEmpty())
-    {
-        ui->LE_NTDIR->setText(directory);
-        ntdir = directory;
-        createConfigFile();
-    }
-    ui->LE_NTDIR->setText(directory);
 }
 
 QByteArray MainWindow::generateResponse(QByteArray msg)
 {
     QJsonDocument jsonDoc = QJsonDocument::fromJson(msg);
+    if (!jsonDoc.isObject()) return{};
     QJsonObject jsonObj = jsonDoc.object();
     QString method = jsonObj.value("method").toString();
     QByteArray response;
@@ -187,15 +79,15 @@ QByteArray MainWindow::generateResponse(QByteArray msg)
     }
     else if(method == "ClientLibrary.initSession")
     {
-        response.append("\"" + jsonObj.value("sessionId").toString() + "\"");
+        response.append("\"" + jsonObj.value("params").toObject().value("sessionId").toString() + "\"");
     }
     else if(method == "ClientLibrary.queryAuthorizationCode")
     {
-        response.append("\"" + code + "\"");
+        response.append("\"" + currentCode + "\"");
     }
     else if(method == "ClientLibrary.queryGameAccountName")
     {
-        response.append("\"" + username + "\"");
+        response.append("\"" + currentUsername + "\"");
     }
     else
         return nullptr;
@@ -203,27 +95,89 @@ QByteArray MainWindow::generateResponse(QByteArray msg)
     return response;
 }
 
+void MainWindow::on_PB_PARAM_clicked()
+{
+    config->show();
+}
+
+void MainWindow::initialiseTraySystem()
+{
+    TraySystem *traySystem = new TraySystem(this);
+    connect(traySystem, &TraySystem::quit, qApp, &QApplication::quit);
+    connect(traySystem, &TraySystem::restore, this, &QWidget::showNormal);
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    event->ignore();
+    hide();
+}
+
 void MainWindow::on_PB_DELETE_clicked()
 {
-    QFile file("accounts/" + currentAccountFile);
-    if(file.open(QIODevice::ReadWrite))
+    QList<QListWidgetItem*> itms = ui->LW_ACCOUNTS->selectedItems();
+    const std::vector<Account> accs = accountReader->getAccounts();
+    if(accs.size() == 0)
+        return;
+    for(size_t i = accs.size() - 1 ; i < accs.size() ; i--)
     {
-        QString s;
-        QTextStream in(&file);
-        while(!in.atEnd())
+        for(int j = 0 ; j < itms.size() ; j++)
         {
-            QString line = in.readLine();
-            QStringList fields = line.split("|");
-            if(!(fields[0] == ui->LW_ACCOUNTS->currentItem()->text()))
-                s.append(line + "\n");
+            if(itms[j]->text() == accs[i].getDisplayedName())
+                accountReader->deleteAccount(i);
         }
-        file.resize(0);
-        in << s;
-        file.close();
-        ui->LW_ACCOUNTS->takeItem(ui->LW_ACCOUNTS->currentRow());
     }
-    else
-        ui->statusbar->showMessage(tr("Something went wrong in " + currentAccountFile.toUtf8() + " opening."));
+    reloadAccounts();
+}
+
+void MainWindow::on_PB_CONNECT_clicked()
+{
+    QList<QListWidgetItem*> itms = ui->LW_ACCOUNTS->selectedItems();
+    const std::vector<Account> accs = accountReader->getAccounts();
+    QStringList usernames, passwords, langs, gfuids, caches, displayedNames;
+    for(int j = 0 ; j < itms.size() ; j++)
+    {
+        for(size_t i = 0 ; i < accs.size() ; i++)
+        {
+            if(itms[j]->text() == accs[i].getDisplayedName())
+            {
+                usernames.push_back(accs[i].getUsername());
+                passwords.push_back(accs[i].getPassword());
+                langs.push_back(accs[i].getLang());
+                gfuids.push_back(accs[i].getGfuid());
+                caches.push_back(accs[i].getCache());
+                displayedNames.push_back(accs[i].getDisplayedName());
+            }
+        }
+    }
+    for(int j = 0 ; j < displayedNames.size() ; j++)
+    {
+        QTimer::singleShot(config->getAccountTimer() * j, [=]
+        {
+            CodeGenerator cg(config->getPlatformGameId(), this);
+            if(!config->shouldUseCache() || caches[j].size() != 36)
+            {
+                currentCode = cg.connectToAccount(usernames[j], passwords[j], langs[j], gfuids[j]);
+                accountReader->patchAccountCache(displayedNames[j], currentCode);
+            }
+            else
+                currentCode = caches[j];
+            if(currentCode.size() != 36)
+            {
+                ui->statusbar->showMessage(displayedNames[j] + " cannot connect (wrong connection code)", config->getAccountTimer() * (j > 0 ? j : 1));
+                return;
+            }
+            currentUsername = usernames[j];
+            QString langAccount = langs[j];
+            QProcess proc;
+            qint64 pid;
+            proc.startDetached(config->getNtDir(), {"gf", QString::number(langToParam.value(langAccount).second)}, QDir::currentPath(), &pid);
+            QTimer::singleShot(1250, [=]
+            {
+                injectDll(QString::number(pid), "Ayugra.dll");
+            });
+        });
+    }
 }
 
 void MainWindow::injectDll(QString processId, QString dllPath)
@@ -232,98 +186,17 @@ void MainWindow::injectDll(QString processId, QString dllPath)
     proc->startDetached("\"" + QDir::currentPath() + "/injector.exe\"", { dllPath, processId });
 }
 
-void MainWindow::on_actionGithub_triggered()
+void MainWindow::reloadAccounts(QString filename)
 {
-    QDesktopServices::openUrl(QUrl(tr("https://github.com/ApourtArtt/NtLauncher")));
+    accountReader->changeAccountFile(filename);
+    ui->LW_ACCOUNTS->clear();
+    std::vector<Account> accountList = accountReader->getAccounts();
+    for(size_t i = 0 ; i < accountList.size() ; i++)
+        ui->LW_ACCOUNTS->insertItem(static_cast<int>(i), accountList[i].getDisplayedName());
 }
 
-void MainWindow::on_CB_ACCOUNTS_currentIndexChanged(const QString &arg1)
+void MainWindow::on_PB_ACCOUNTMANAGER_clicked()
 {
-    currentAccountFile = arg1;
-    initialiseAccountList();
-}
-
-/* config.json
- * {
- *     "ntdir": "C:\\...",
- *     "kill": "true",
- *     "time": "...",
- *     "language" : "fR"
- * }
-*/
-
-bool MainWindow::createConfigFile()
-{
-    QJsonObject json;
-
-    json["ntdir"]   = ntdir == ""   ? ui->LE_NTDIR->text()              : ntdir;
-    json["lang"]    = lang == ""    ? ui->CB_LANG->currentText()        : lang;
-    json["time"]    = time < 0      ? ui->SB_TIME->value()              : time;
-    json["kill"]    = kill == true  ? ui->CB_KILLGFCLIENT->isChecked()  : kill;
-
-    QFile saveFile(QStringLiteral("config.json"));
-    if (!saveFile.open(QIODevice::WriteOnly))
-        return false;
-    QJsonDocument saveDoc(json);
-    saveFile.write(saveDoc.toJson());
-    return true;
-}
-
-bool MainWindow::readConfigFile()
-{
-    QJsonObject json;
-    QFile loadFile(QStringLiteral("config.json"));
-    if (!loadFile.open(QIODevice::ReadOnly))
-        return false;
-    QByteArray saveData = loadFile.readAll();
-    QJsonDocument loadDoc(QJsonDocument::fromJson(saveData));
-    json = loadDoc.object();
-
-    if(json.contains("ntdir") && json["ntdir"].isString())
-    {
-        ntdir = loadDoc["ntdir"].toString();
-        ui->LE_NTDIR->setText(ntdir);
-    }
-    else return false;
-
-    if(json.contains("lang") && json["lang"].isString())
-    {
-        lang = loadDoc["lang"].toString();
-        ui->CB_LANG->setCurrentText(lang);
-    }
-    else return false;
-
-    if(json.contains("time") && json["time"].isDouble())
-    {
-        time = loadDoc["time"].toDouble();
-        ui->SB_TIME->setValue(time / 1000);
-    }
-    else return false;
-
-    if(json.contains("kill") && json["kill"].isBool())
-    {
-        kill = loadDoc["kill"].toBool();
-        ui->CB_KILLGFCLIENT->setChecked(kill);
-    }
-    else return false;
-
-    return true;
-}
-
-void MainWindow::on_CB_LANG_currentIndexChanged(const QString &arg1)
-{
-    lang = arg1;
-    createConfigFile();
-}
-
-void MainWindow::on_SB_TIME_valueChanged(double arg1)
-{
-    time = static_cast<int>(arg1 * 1000);
-    createConfigFile();
-}
-
-void MainWindow::on_CB_KILLGFCLIENT_stateChanged(int arg1)
-{
-    kill = arg1;
-    createConfigFile();
+    accAdd->changeLang(config->getLang());
+    accAdd->show();
 }

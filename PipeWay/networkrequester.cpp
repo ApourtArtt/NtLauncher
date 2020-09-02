@@ -8,15 +8,15 @@ NetworkRequester::NetworkRequester(QObject *parent)
 
 QByteArray NetworkRequester::post(QByteArray jsonRequest, QNetworkRequest header)
 {
-    QNetworkReply *reply = nam.post(header, jsonRequest);
+    QSharedPointer<QNetworkReply> reply = QSharedPointer<QNetworkReply>(nam.post(header, jsonRequest));
     while (!reply->isFinished())
         qApp->processEvents();
-    return  reply->readAll();
+    return reply->readAll();
 }
 
 QByteArray NetworkRequester::get(QNetworkRequest header)
 {
-    QNetworkReply *reply = nam.get(header);
+    QSharedPointer<QNetworkReply> reply = QSharedPointer<QNetworkReply>(nam.get(header));
     while(!reply->isFinished())
         qApp->processEvents();
     return reply->readAll();

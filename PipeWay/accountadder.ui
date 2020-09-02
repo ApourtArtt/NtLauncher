@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AccountAdder</class>
+ <widget class="QMainWindow" name="AccountAdder">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>331</width>
+    <height>236</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Add account</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Password</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="LE_NICKNAME"/>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Username</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>Gfuid</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLineEdit" name="LE_USERNAME"/>
+    </item>
+    <item row="5" column="1">
+     <widget class="QLineEdit" name="LE_CACHE">
+      <property name="inputMask">
+       <string>xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>Language</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QLineEdit" name="LE_PASSWORD"/>
+    </item>
+    <item row="4" column="1">
+     <widget class="QLineEdit" name="LE_GFUID">
+      <property name="inputMask">
+       <string>xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</string>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="0" colspan="2">
+     <widget class="QPushButton" name="PB_ADD">
+      <property name="text">
+       <string>Add</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QComboBox" name="CB_LANG">
+      <item>
+       <property name="text">
+        <string>EN</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>DE</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>FR</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>IT</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>PL</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>ES</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>CZ</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>RU</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>TR</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="5" column="0">
+     <widget class="QLabel" name="label_5">
+      <property name="text">
+       <string>Cache</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_6">
+      <property name="text">
+       <string>Nickname</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="1">
+     <widget class="QComboBox" name="CB_ACCOUNTFILE">
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0">
+     <widget class="QLabel" name="label_7">
+      <property name="text">
+       <string>File</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>LE_NICKNAME</tabstop>
+  <tabstop>LE_USERNAME</tabstop>
+  <tabstop>LE_PASSWORD</tabstop>
+  <tabstop>LE_GFUID</tabstop>
+  <tabstop>LE_CACHE</tabstop>
+  <tabstop>CB_ACCOUNTFILE</tabstop>
+  <tabstop>PB_ADD</tabstop>
+  <tabstop>CB_LANG</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

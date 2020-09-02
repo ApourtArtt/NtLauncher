@@ -1,21 +1,17 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMessageBox>
 #include <QMainWindow>
-#include <QLocalServer>
-#include <QLocalSocket>
-#include <QFileDialog>
-#include <QSettings>
-#include <QDesktopServices>
-#include "ui_mainwindow.h"
+#include <QCloseEvent>
 #include "codegenerator.h"
-#include "updatewidget.h"
+#include "configuration.h"
+#include "traysystem.h"
+#include "accountreader.h"
+#include "accountadder.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
-
 
 class MainWindow : public QMainWindow
 {
@@ -26,38 +22,27 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_PB_CONNECT_clicked();
-    void on_PB_ADD_clicked();
-    void on_PB_BROWSE_clicked();
+    void on_PB_PARAM_clicked();
     void on_PB_DELETE_clicked();
-    void on_CB_KILLGFCLIENT_stateChanged(int arg1);
-    void on_actionGithub_triggered();
-    void on_CB_LANG_currentIndexChanged(const QString &arg1);
-    void on_SB_TIME_valueChanged(double arg1);
-    void on_CB_ACCOUNTS_currentIndexChanged(const QString &arg1);
+    void on_PB_CONNECT_clicked();
+    void on_PB_ACCOUNTMANAGER_clicked();
 
 private:
-    bool readConfigFile();
-    bool createConfigFile();
-    void injectDll(QString processId, QString dllPath);
+    void closeEvent(QCloseEvent *event);
+    void initialiseTraySystem();
+    void initialiseAyugraNamedPipe();
+    void initialiseGameforgeNamedPipe();
+
     QByteArray generateResponse(QByteArray msg);
-    void connectToAccount(QStringList infos);
-    QStringList getAccountInfos();
-    void initialiseAccountList();
-    void killGfclient();
+    void injectDll(QString processId, QString dllPath);
+
+    void reloadAccounts(QString filename = nullptr);
+
+    QString currentCode, currentUsername;
 
     Ui::MainWindow *ui;
-
-    QString code, username, gfuid;
-
-    QString currentAccountFile;
-
-    double time;
-    bool kill;
-    QString ntdir;
-    QString lang;
-
-    const QString VERSION = "1.4";
+    Configuration *config;
+    AccountReader *accountReader;
+    AccountAdder *accAdd;
 };
-
 #endif // MAINWINDOW_H
