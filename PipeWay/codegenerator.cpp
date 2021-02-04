@@ -18,6 +18,7 @@ QString CodeGenerator::connectToAccount(QString username, QString password, QStr
     local = langToParam.value(lang).first;
     gflang = lang.toLower();
     currentGfuid = gfuid.isEmpty() ? getGfuidFromRegistry() : gfuid;
+    qDebug() << "Gfuid : " << currentGfuid;
     if(!retrieveEmailAddress())
         return nullptr;
     if(!connectWithEmail())
@@ -43,7 +44,9 @@ bool CodeGenerator::retrieveEmailAddress()
                       "\"password\":\"" + currentPassword.toUtf8() + "\","
                       "\"locale\":\"" + local.toUtf8() + "\","
                       "\"gfLang\":\"" + gflang.toUtf8() + "\","
-                      "\"platformGameId\":\"" + platformGameId.toUtf8() + "\""
+                      "\"platformGameId\":\"" + platformGameId.toUtf8() + "\","
+                      "\"gameEnvironmentId\":\"732876de-012f-4e8d-a501-2e0816cf22f2\","
+                      "\"autoGameAccountCreation\":true"
                       "}";
     QNetworkRequest req(QUrl("https://spark.gameforge.com/api/v1/auth/thin/sessions"));
     req.setRawHeader("Connection", "Keep-Alive");
@@ -61,6 +64,7 @@ bool CodeGenerator::retrieveEmailAddress()
     token = jsonObj.value(QString("token")).toString();
     platformGameAccountID = jsonObj.value(QString("platformGameAccountId")).toString();
     email = jsonObj.value(QString("email")).toString();
+    qDebug() << json;
     qDebug() << response;
     return (!email.isNull() && !token.isNull() && !platformGameId.isNull());
 }
@@ -72,7 +76,8 @@ bool CodeGenerator::connectWithEmail()
                       "\"password\":\"" + currentPassword.toUtf8() + "\","
                       "\"locale\":\"" + local.toUtf8() + "\","
                       "\"gfLang\":\"" + gflang.toUtf8() + "\","
-                      "\"platformGameId\":\"" + platformGameId.toUtf8() + "\""
+                      "\"platformGameId\":\"" + platformGameId.toUtf8() + "\","
+                      "\"autoGameAccountCreation\":true"
                       "}";
     QNetworkRequest req(QUrl("https://spark.gameforge.com/api/v1/auth/thin/sessions"));
     req.setRawHeader("Connection", "Keep-Alive");
@@ -89,6 +94,7 @@ bool CodeGenerator::connectWithEmail()
     QJsonObject jsonObj = jsonDoc.object();
     token = jsonObj.value(QString("token")).toString();
     QString valuePlatform = jsonObj.value(QString("platformGameAccountId")).toString();
+    qDebug() << json;
     qDebug() << response;
     return (!token.isNull());
 }
@@ -102,7 +108,7 @@ QString CodeGenerator::retrieveCode()
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json; charset=utf-8");
     req.setRawHeader("TNT-Installation-Id", currentGfuid.toUtf8());
     req.setRawHeader("Authorization", "Bearer " + token.toUtf8());
-    req.setRawHeader("User-Agent", gfClientVersion.toUtf8());
+    req.setRawHeader("User-Agent", "Chrome/C2.1.22.784 (94e978b640) GameforgeClient/2.1.22");
     req.setRawHeader("Content-Length", QString(json.length()).toUtf8());
     req.setRawHeader("Connection", "Keep-Alive");
     req.setRawHeader("Accept-Encoding", "gzip, deflate, br");
@@ -111,12 +117,14 @@ QString CodeGenerator::retrieveCode()
     QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
     QJsonObject jsonObj = jsonDoc.object();
     code = jsonObj.value("code").toString().toLatin1();
+    qDebug() << json;
     qDebug() << response;
     return code;
 }
 
 QString CodeGenerator::getGfClientVersion()
 {
+    return "Chrome/C2.1.22.784 (94e978b640) GameforgeClient/2.1.22";
     QNetworkRequest req(QUrl("http://dl.tnt.gameforge.com/tnt/final-ms3/clientversioninfo.json"));
     QByteArray response = netRequester.get(req);
     QJsonDocument jsonDoc = QJsonDocument::fromJson(response);

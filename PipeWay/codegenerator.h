@@ -19,26 +19,6 @@ const QMap <QString, QPair<QString, int>> langToParam
     { "TR", { "tr_TR", 8 } }
 };
 
-
-/*
- * TODO : func to create account
-POST https://spark.gameforge.com/api/v1/user/me HTTP/1.1
-Host: spark.gameforge.com
-Connection: keep-alive
-Content-Length: 104
-Origin: spark://www.gameforge.com
-TNT-Installation-Id: 37123123-e2ee-46cb-8a70-9775ec6a6aab
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36
-Content-Type: application/json
-Accept: * / *
-Accept-Encoding: gzip, deflate, br
-Accept-Language: en-US,en;q=0.9
-{"email":"emailemail@gmail.com","password":"motdepasse123P","displayName":"emailemail","locale":"fr-FR"}
-
-no need to activate account
-password need 10 characters minimum, 1 maj, 1 min, 1 number minimum
-*/
-
 class CodeGenerator : public QObject
 {
     Q_OBJECT
