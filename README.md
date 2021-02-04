@@ -22,7 +22,7 @@ This launcher looks something like that : ![Get Account Name](https://zupimages.
 2 : Pseudonym displayed on the account list. It can be whatever you want. \
 3 : Username needed for connection. \
 4 : Password needed for connection. \
-5 : (Don't use it if you don't know what it is) it only change the GFUID requested by GF's api. Leave it empty if you don't know what to type. \
+5 : (Don't use it if you don't know what it is) it only change the GFUID requested by GF's api. Leave it empty if you don't know what to type. Since Frabruary 2021, it is __necessary__ to use a valid and registered GFUID. \
 6 : Code cache is used to bypass anti-bruteforce system. If you don't have one but still want to use it, leave it empty and it will be filled at the first connection. \
 7 : Account file, used to regroup some accounts. \
 
