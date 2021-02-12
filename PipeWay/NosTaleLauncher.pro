@@ -30,12 +30,14 @@ SOURCES += \
 HEADERS += \
     accountadder.h \
     accountreader.h \
+    codecreator.h \
     codegenerator.h \
     configuration.h \
     githubupdate.h \
     mainwindow.h \
     networkrequester.h \
     nostaleupdater.h \
+    rc4.h \
     traysystem.h
 
 FORMS += \

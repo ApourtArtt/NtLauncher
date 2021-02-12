@@ -32,7 +32,10 @@ private:
     bool retrieveEmailAddress();
     bool connectWithEmail();
     QString retrieveCode();
-    QString getGfClientVersion();
+
+    QByteArray getUserAgent();
+
+    QString generateRandomUuid();
 
     NetworkRequester netRequester;
 
@@ -44,7 +47,6 @@ private:
     QString local, gflang;
 
     QString platformGameId;
-    static QString gfClientVersion;
 };
 
 #endif // CODEGENERATOR_H

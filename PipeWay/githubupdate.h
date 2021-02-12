@@ -19,7 +19,7 @@ public:
 private:
     Ui::GithubUpdate *ui;
 
-    const QString VERSION = "1.5";
+    const QString VERSION = "1.6";
 };
 
 #endif // GITHUBUPDATE_H

@@ -1,14 +1,13 @@
 #include "codegenerator.h"
+#include "codecreator.h"
 
-QString CodeGenerator::gfClientVersion = nullptr;
 
 CodeGenerator::CodeGenerator(QString PlatformGameId, QObject *parent)
     : QObject(parent)
     , netRequester(this)
     , platformGameId(PlatformGameId)
 {
-    if(gfClientVersion == nullptr)
-        gfClientVersion = getGfClientVersion();
+
 }
 
 QString CodeGenerator::connectToAccount(QString username, QString password, QString lang, QString gfuid)
@@ -33,7 +32,7 @@ QString CodeGenerator::getGfuid()
 
 QString CodeGenerator::getGfuidFromRegistry()
 {
-    QSettings settings("HKEY_CURRENT_USER\\Software\\Gameforge4d\\TNTClient\\MainApp", QSettings::NativeFormat);
+    QSettings settings("HKEY_CURRENT_USER\\Software\\Gameforge4d\\GameforgeClient\\MainApp", QSettings::NativeFormat);
     return settings.value("InstallationId", "").toString();
 }
 
@@ -105,10 +104,10 @@ QString CodeGenerator::retrieveCode()
                       "\"platformGameAccountId\":\"" + platformGameAccountID.toUtf8() + "\""
                       "}";
     QNetworkRequest req(QUrl("https://spark.gameforge.com/api/v1/auth/thin/codes"));
-    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json; charset=utf-8");
     req.setRawHeader("TNT-Installation-Id", currentGfuid.toUtf8());
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json; charset=utf-8");
     req.setRawHeader("Authorization", "Bearer " + token.toUtf8());
-    req.setRawHeader("User-Agent", "Chrome/C2.1.22.784 (94e978b640) GameforgeClient/2.1.22");
+    req.setRawHeader("User-Agent", getUserAgent());
     req.setRawHeader("Content-Length", QString(json.length()).toUtf8());
     req.setRawHeader("Connection", "Keep-Alive");
     req.setRawHeader("Accept-Encoding", "gzip, deflate, br");
@@ -119,19 +118,45 @@ QString CodeGenerator::retrieveCode()
     code = jsonObj.value("code").toString().toLatin1();
     qDebug() << json;
     qDebug() << response;
+    for (int i = 0; i < req.rawHeaderList().size() ; i++)
+    {
+        qDebug() << "- " << req.rawHeaderList()[i] << " : " << req.rawHeader(req.rawHeaderList()[i]);
+    }
     return code;
 }
 
-QString CodeGenerator::getGfClientVersion()
+QByteArray CodeGenerator::getUserAgent()
 {
-    return "Chrome/C2.1.22.784 (94e978b640) GameforgeClient/2.1.22";
-    QNetworkRequest req(QUrl("http://dl.tnt.gameforge.com/tnt/final-ms3/clientversioninfo.json"));
-    QByteArray response = netRequester.get(req);
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
-    QJsonObject jsonObj = jsonDoc.object();
-    QString version = jsonObj.value(QString("minimumVersionForDelayedUpdate")).toString();
-    qDebug() << "CodeGenerator::getGfClientVersion() : " << version;
-    if(version == nullptr)
-        return "GameforgeClient/2.1.5";
-    return "GameforgeClient/" + version;
+    QString userAgent = "Chrome/C";
+    userAgent.append("2.1.22.784"); // todo
+    userAgent.append(" (");
+
+    CodeCreator cc(platformGameAccountID, currentGfuid, "2.1.22.784", "cert.p12");
+    cc.ValidateEndpoint(generateRandomUuid());
+    userAgent.append(cc.CreateCode());
+
+    userAgent.append(") ");
+    userAgent.append("GameforgeClient/2.1.22"); // todo
+
+    qDebug() << userAgent;
+    return userAgent.toLatin1();
+}
+
+QString CodeGenerator::generateRandomUuid()
+{
+    const int STRING_LENGTH = 36;
+    const QString POSSIBLE_CHARACTER = "0123456789abcdef";
+    QString randomString;
+    randomString.reserve(STRING_LENGTH);
+    for(int i = 0; i < STRING_LENGTH; i++)
+    {
+        int index = qrand() % POSSIBLE_CHARACTER.length();
+        QChar nextChar = POSSIBLE_CHARACTER.at(index);
+        if(i == 14)
+            nextChar = '4';
+        if(i == 8 || i == 13 || i == 18 || i == 23)
+            nextChar = '-';
+        randomString.append(nextChar);
+    }
+    return randomString;
 }
